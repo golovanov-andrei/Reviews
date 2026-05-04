@@ -1,40 +1,38 @@
-# 💳 Credit Risk Classification
+# 📝 Reviews Classification Project
 
-Модель машинного обучения для оценки кредитного риска заемщиков.  
-Проект реализует полный pipeline: от обработки данных до предсказания вероятности дефолта.
+Проект по анализу и классификации текстовых отзывов с использованием методов машинного обучения и обработки естественного языка (**NLP**).
 
----
-
-## 🚀 Возможности
-
-### 📊 End-to-End Pipeline
-- Очистка данных  
-- Feature Engineering  
-- Масштабирование  
-- Предсказание  
-
-### 🤖 ML-модель
-- Логистическая регрессия *(или укажи свою модель)*  
-- Предсказание вероятности дефолта  
-- Интерпретируемый результат  
-
-### 🌐 Веб-интерфейс
-- Реализация через Streamlit  
-- Удобный ввод данных пользователя  
-- Мгновенный результат  
+Модель обучается определять тональность отзывов (Positive/Negative) на основе текстовых данных, проходя через полный цикл предобработки и векторизации.
 
 ---
 
-## 📁 Структура проекта
+## 🚀 Возможности проекта
 
+*   **📊 Предобработка текста:** Очистка от спецсимволов, токенизация, удаление стоп-слов и лемматизация.
+*   **🔤 Векторизация:** Преобразование текста в числовые признаки с помощью **TF-IDF** или **CountVectorizer**.
+*   **🤖 ML-классификация:** Обучение моделей для предсказания тональности отзыва.
+*   **📈 Оценка качества:** Подробный анализ метрик (Accuracy, Precision, Recall, F1-score) и построение Confusion Matrix.
+*   **📓 End-to-End Pipeline:** Весь процесс от загрузки данных до инференса реализован в едином рабочем цикле.
 
+---
+
+## 🧠 Технологический стек
+
+![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-150458?logo=pandas&logoColor=white)
+![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-ML-F7931E?logo=scikitlearn&logoColor=white)
+![NLTK](https://img.shields.io/badge/NLTK-NLP-4B8BBE)
+[📊Dataset on Kaggle](https://www.kaggle.com/datasets/dongrelaxman/amazon-reviews-dataset/data)
+---
+
+## 📂 Структура проекта
+
+```bash
 .
-├── Credit risk.ipynb # Обучение модели
-├── app.py # Streamlit-приложение
-├── credit_model.pkl # Обученная модель
-├── feature_columns.pkl # Список признаков
-└── requirements.txt # Зависимости
-
+├── reviews.ipynb          
+├── Amazon_Reviews.csv
+└── README.md              
+```
 
 ---
 
@@ -42,44 +40,34 @@
 
 ### 1. Клонирование репозитория
 ```bash
-git clone https://github.com/golovanov-andrei/credit-risk-project.git
-cd credit-risk-project
-2. Установка зависимостей
-pip install -r requirements.txt
-🧠 Обучение модели
+git clone https://github.com
+cd reviews-classification
+```
 
-Открой и запусти ноутбук:
+### 2. Установка зависимостей
+Рекомендуется использовать виртуальное окружение:
+```bash
+pip install pandas numpy scikit-learn matplotlib seaborn nltk
+```
 
-Credit risk.ipynb
-▶️ Запуск приложения
-streamlit run app.py
+### 3. Запуск
+```bash
+jupyter notebook reviews.ipynb
+```
 
-После запуска открой в браузере:
+---
 
-http://localhost:8501
-📊 Пример использования
+## 📊 Pipeline работы
+1. **Загрузка данных:** Импорт датасета с отзывами.
+2. **EDA:** Анализ распределения классов.
+3. **Preprocessing:** Очистка текста и нормализация.
+4. **Vectorization:** Применение TF-IDF трансформации.
+5. **Modeling:** Обучение классификатора (например, Logistic Regression или Random Forest).
+6. **Evaluation:** Валидация на тестовой выборке.
 
-Пользователь вводит параметры:
+---
 
-доход
-возраст
-кредитная история
-другие признаки
+## 👤 Автор
 
-➡️ Модель возвращает вероятность дефолта и уровень риска
-
-🛠️ Стек технологий
-Python
-Pandas
-NumPy
-Scikit-learn
-Streamlit
-📌 Дальнейшие улучшения
-Добавить более сложные модели (XGBoost, LightGBM)
-Добавить explainability (SHAP)
-Подключить базу данных
-Деплой (Render / AWS / Docker)
-👤 Автор
-
-Андрей Голованов
-GitHub: https://github.com/golovanov-andrei
+**Андрей Голованов**  
+[![GitHub](https://img.shields.io/badge/GitHub-golovanov--andrei-black?logo=github)](https://github.com/golovanov-andrei)
