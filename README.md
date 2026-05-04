@@ -6,6 +6,19 @@
 
 ---
 
+## 💡 Пример реализации
+
+<table>
+  <tr>
+    <td><img src="https://github.com/golovanov-andrei/Reviews/blob/main/screens/reviews.png" width="100%"></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/golovanov-andrei/Reviews/blob/main/screens/lda.png" width="100%"></td>
+  </tr>
+</table>
+
+---
+
 ## 🚀 Возможности проекта
 
 *   **📊 Предобработка текста:** Очистка от спецсимволов, токенизация, удаление стоп-слов и лемматизация.
