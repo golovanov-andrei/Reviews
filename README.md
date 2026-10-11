@@ -1,86 +1,97 @@
-# 📝 Reviews Classification Project
+# Reviews — анализ тональности и тем отзывов
 
-Проект по анализу и классификации текстовых отзывов с использованием методов машинного обучения и обработки естественного языка (**NLP**).
+Учебный NLP-проект для англоязычных отзывов: **TF-IDF + Logistic Regression** определяют тональность, а **CountVectorizer + LDA** выделяют темы. В ноутбуке также есть анализ ошибок и интерактивный ввод своего текста.
 
-Модель обучается определять тональность отзывов (Positive/Negative) на основе текстовых данных, проходя через полный цикл предобработки и векторизации.
+## Данные и целевая переменная
 
----
+[Amazon_Reviews.csv](Amazon_Reviews.csv) включён в репозиторий. Ссылка на набор, указанная в исходном проекте: [Amazon Reviews Dataset на Kaggle](https://www.kaggle.com/datasets/dongrelaxman/amazon-reviews-dataset/data).
 
-## 💡 Пример реализации
+Ноутбук использует `Rating`, `Review Title`, `Review Text` и `Country`. Метки строятся по рейтингу:
 
-<table>
-  <tr>
-    <td><img src="https://github.com/golovanov-andrei/Reviews/blob/main/screens/reviews.png" width="100%"></td>
-  </tr>
-  <tr>
-    <td><img src="https://github.com/golovanov-andrei/Reviews/blob/main/screens/lda.png" width="100%"></td>
-  </tr>
-</table>
+| Рейтинг | Метка |
+| --- | --- |
+| 1–2 звезды | `-1` — отрицательный отзыв |
+| 3 звезды | Исключается из классификации |
+| 4–5 звёзд | `1` — положительный отзыв |
 
----
+Это оценка соответствия текста рейтингу автора, а не независимая экспертная разметка тональности.
 
-## 🚀 Возможности проекта
+## Как работает проект
 
-*   **📊 Предобработка текста:** Очистка от спецсимволов, токенизация, удаление стоп-слов и лемматизация.
-*   **🔤 Векторизация:** Преобразование текста в числовые признаки с помощью **TF-IDF** или **CountVectorizer**.
-*   **🤖 ML-классификация:** Обучение моделей для предсказания тональности отзыва.
-*   **📈 Оценка качества:** Подробный анализ метрик (Accuracy, Precision, Recall, F1-score) и построение Confusion Matrix.
-*   **📓 End-to-End Pipeline:** Весь процесс от загрузки данных до инференса реализован в едином рабочем цикле.
+1. Очистка HTML, URL и лишних пробелов, фильтрация коротких записей и некорректных рейтингов, удаление дубликатов текстов.
+2. Разделение данных 80/20 с `random_state=42`.
+3. TF-IDF: униграммы и биграммы, английские стоп-слова, до 10 000 признаков. Векторизатор обучается только на train.
+4. Логистическая регрессия с `max_iter=2000`, матрица ошибок, accuracy и ROC-AUC.
+5. Анализ весов слов, ложных положительных и отрицательных ответов.
+6. Отдельная тематическая модель LDA: 5 тем, CountVectorizer до 5 000 признаков, визуализация через pyLDAvis.
 
----
+Лемматизация в текущем коде не выполняется. NLTK импортируется, но скачивание его словарей для имеющегося пути обработки не требуется.
 
-## 🧠 Технологический стек
+## Структура
 
-![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
-![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-150458?logo=pandas&logoColor=white)
-![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-ML-F7931E?logo=scikitlearn&logoColor=white)
-![NLTK](https://img.shields.io/badge/NLTK-NLP-4B8BBE)
-[📊Dataset on Kaggle](https://www.kaggle.com/datasets/dongrelaxman/amazon-reviews-dataset/data)
----
+| Файл | Назначение |
+| --- | --- |
+| [reviews.ipynb](reviews.ipynb) | Весь анализ, обучение и интерактивный ввод |
+| [Amazon_Reviews.csv](Amazon_Reviews.csv) | Исходные данные |
+| [screens/](screens/) | Примеры результатов и тематической визуализации |
 
-## 📂 Структура проекта
+При выполнении ноутбука создаются `clean_reviews.csv` и `lda_vis.html`. Отдельного веб-приложения или сохранённой модели в репозитории нет.
+
+## Локальный запуск
 
 ```bash
-.
-├── reviews.ipynb          
-├── Amazon_Reviews.csv
-└── README.md              
+git clone https://github.com/golovanov-andrei/Reviews.git
+cd Reviews
+python -m venv .venv
 ```
 
----
+Активируйте окружение:
 
-## ⚙️ Установка и запуск
-
-### 1. Клонирование репозитория
-```bash
-git clone https://github.com
-cd reviews-classification
+```powershell
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
 ```
 
-### 2. Установка зависимостей
-Рекомендуется использовать виртуальное окружение:
 ```bash
-pip install pandas numpy scikit-learn matplotlib seaborn nltk
+# macOS / Linux
+source .venv/bin/activate
 ```
 
-### 3. Запуск
+Установите библиотеки и запустите Jupyter:
+
 ```bash
+python -m pip install jupyter pandas numpy scikit-learn matplotlib seaborn nltk pyLDAvis
 jupyter notebook reviews.ipynb
 ```
 
----
+В ячейке загрузки замените путь Kaggle:
 
-## 📊 Pipeline работы
-1. **Загрузка данных:** Импорт датасета с отзывами.
-2. **EDA:** Анализ распределения классов.
-3. **Preprocessing:** Очистка текста и нормализация.
-4. **Vectorization:** Применение TF-IDF трансформации.
-5. **Modeling:** Обучение классификатора (например, Logistic Regression или Random Forest).
-6. **Evaluation:** Валидация на тестовой выборке.
+```python
+df = pd.read_csv("Amazon_Reviews.csv", engine="python")
+```
 
----
+Выполните ячейки по порядку. Последняя ячейка запускает цикл ввода отзывов; команда `exit` завершает его. LDA-визуализация сохраняется в `lda_vis.html`, который можно открыть в браузере.
 
-## 👤 Автор
+## Сохранённые результаты
 
-**Андрей Голованов**  
-[![GitHub](https://img.shields.io/badge/GitHub-golovanov--andrei-black?logo=github)](https://github.com/golovanov-andrei)
+Метрики из опубликованного вывода ноутбука; при обновлении README модель не переобучалась.
+
+| Метрика | Значение |
+| --- | ---: |
+| Accuracy | 0.9375 |
+| ROC-AUC | 0.9823 |
+
+Precision, recall и F1 в текущем ноутбуке не выводятся. Версии библиотек не зафиксированы; повторение метрик в другом окружении не проверено. Случайное разбиение не проверяет переносимость на другой период, источник или язык.
+
+## Примеры
+
+![Анализ отзыва](screens/reviews.png)
+![Темы LDA](screens/lda.png)
+
+## Дальнейшее развитие
+
+- Зафиксировать зависимости и объединить векторизатор с классификатором в Pipeline.
+- Добавить stratified-разбиение, precision/recall/F1 и проверку на отдельном источнике.
+- Сохранять модель вместе с векторизатором для повторного инференса.
+
+Автор: [Андрей Голованов](https://github.com/golovanov-andrei).
