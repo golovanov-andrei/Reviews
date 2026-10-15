@@ -1,8 +1,6 @@
-# 📝 Reviews Classification Project
+# 📝 Reviews — Sentiment Analysis & Topic Modeling
 
-Проект по анализу и классификации текстовых отзывов с использованием методов машинного обучения и обработки естественного языка (**NLP**).
-
-Модель обучается определять тональность отзывов (Positive/Negative) на основе текстовых данных, проходя через полный цикл предобработки и векторизации.
+NLP-проект для анализа англоязычных отзывов об Amazon. **TF-IDF + Logistic Regression** определяют положительную или отрицательную тональность, а **LDA** выделяет темы обсуждений. В Jupyter Notebook собраны подготовка данных, обучение, оценка качества и интерактивный ввод своего отзыва.
 
 ---
 
@@ -10,77 +8,171 @@
 
 <table>
   <tr>
-    <td><img src="https://github.com/golovanov-andrei/Reviews/blob/main/screens/reviews.png" width="100%"></td>
+    <td width="50%"><img src="screens/confusion_matrix.png" alt="Матрица ошибок Logistic Regression" width="100%"></td>
+    <td width="50%"><img src="screens/roc_curve.png" alt="ROC-кривая классификатора тональности" width="100%"></td>
   </tr>
   <tr>
-    <td><img src="https://github.com/golovanov-andrei/Reviews/blob/main/screens/lda.png" width="100%"></td>
+    <td align="center"><b>Матрица ошибок</b></td>
+    <td align="center"><b>ROC-кривая</b></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="screens/lda.png" alt="Интерактивная визуализация пяти тем LDA в pyLDAvis" width="100%"></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><b>Темы отзывов и наиболее значимые слова</b></td>
   </tr>
 </table>
 
----
-
-## 🚀 Возможности проекта
-
-*   **📊 Предобработка текста:** Очистка от спецсимволов, токенизация, удаление стоп-слов и лемматизация.
-*   **🔤 Векторизация:** Преобразование текста в числовые признаки с помощью **TF-IDF** или **CountVectorizer**.
-*   **🤖 ML-классификация:** Обучение моделей для предсказания тональности отзыва.
-*   **📈 Оценка качества:** Подробный анализ метрик (Accuracy, Precision, Recall, F1-score) и построение Confusion Matrix.
-*   **📓 End-to-End Pipeline:** Весь процесс от загрузки данных до инференса реализован в едином рабочем цикле.
+Галерея использует скриншот проекта и графики из сохранённого вывода ноутбука.
 
 ---
 
-## 🧠 Технологический стек
+## 🚀 Ключевые возможности
 
-![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
-![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-150458?logo=pandas&logoColor=white)
-![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-ML-F7931E?logo=scikitlearn&logoColor=white)
-![NLTK](https://img.shields.io/badge/NLTK-NLP-4B8BBE)
-[📊Dataset on Kaggle](https://www.kaggle.com/datasets/dongrelaxman/amazon-reviews-dataset/data)
+- **Предобработка текста** — удаление HTML и URL, фильтрация коротких записей, некорректных рейтингов и дубликатов.
+- **Классификация тональности** — TF-IDF с униграммами и биграммами, логистическая регрессия.
+- **Оценка качества** — accuracy, ROC-AUC, ROC-кривая и матрица ошибок.
+- **Анализ ошибок** — ложные положительные и отрицательные ответы, длина текстов, распределение по странам.
+- **Интерпретация модели** — слова и словосочетания с наибольшими положительными и отрицательными коэффициентами.
+- **Тематический анализ** — пять тем LDA, топ слов каждой темы и интерактивная визуализация pyLDAvis.
+- **Свой пример** — ввод англоязычного отзыва и получение класса с оценкой модели.
+
 ---
 
-## 📂 Структура проекта
+## 🛠 Технологический стек
+
+- **Python, Jupyter Notebook**
+- **pandas, NumPy** — обработка данных
+- **scikit-learn** — TF-IDF, Logistic Regression, CountVectorizer, LDA и метрики
+- **Matplotlib, Seaborn** — графики
+- **NLTK** — английские стоп-слова для частотного анализа
+- **pyLDAvis** — интерактивное исследование тем
+
+---
+
+## 📈 Этапы реализации
+
+### 1. Данные и подготовка
+
+В [Amazon_Reviews.csv](Amazon_Reviews.csv) — **21 214 записей**. После очистки и исключения нейтральных отзывов остаются **19 582**: 14 157 отрицательных и 5 425 положительных.
+
+Ссылка на источник, указанная в исходном проекте: [Amazon Reviews Dataset на Kaggle](https://www.kaggle.com/datasets/dongrelaxman/amazon-reviews-dataset/data).
+
+Ноутбук обрабатывает `Rating`, `Review Title`, `Review Text` и `Country`. Классификатор использует **только текст отзыва**; метка строится по рейтингу:
+
+| Рейтинг | Метка |
+| --- | --- |
+| 1–2 звезды | `-1` — отрицательная |
+| 3 звезды | Исключается из классификации |
+| 4–5 звёзд | `1` — положительная |
+
+Таким образом оценивается соответствие текста рейтингу автора. Лемматизация в текущем коде не выполняется.
+
+### 2. Обучение и оценка классификатора
+
+Данные разделяются на train / test в пропорции **80 / 20**, `random_state=42`.
+
+- **TfidfVectorizer**: `ngram_range=(1, 2)`, `stop_words="english"`, `max_features=10000`.
+- Векторизатор обучается только на train; test преобразуется через `transform`.
+- **LogisticRegression**: `max_iter=2000`.
+
+Сохранённые результаты [reviews.ipynb](reviews.ipynb):
+
+| Метрика | Значение |
+| --- | ---: |
+| Accuracy | 0.9375 |
+| ROC-AUC | 0.9823 |
+
+<details>
+<summary>Об оценке качества</summary>
+
+Метрики и графики взяты из опубликованного запуска ноутбука; при оформлении README модель не переобучалась. Precision, recall и F1 в текущем ноутбуке не выводятся.
+
+Разбиение случайное, без stratify. Классы несбалансированы; переноса на другой период, источник или язык этот эксперимент не проверяет. Метки получены из рейтингов, поэтому расхождения между текстом и рейтингом влияют на оценку.
+
+В сохранённой матрице ошибок оси подписаны индексами 0 и 1: они соответствуют классам -1 и 1. Версии зависимостей не зафиксированы; точное повторение метрик в другом окружении не проверено.
+
+</details>
+
+### 3. Темы и анализ собственных отзывов
+
+Для тематической модели используется отдельный **CountVectorizer** с английскими стоп-словами и до 5 000 признаков. **LatentDirichletAllocation** выделяет пять тем на очищенном наборе, `random_state=42`.
+
+В pyLDAvis можно выбирать тему, смотреть её характерные слова и менять параметр релевантности. LDA исследует темы независимо от классификатора тональности.
+
+Последняя ячейка ноутбука принимает свой текст, выводит класс `-1 / 1` и максимальное значение `predict_proba` — оценку выбранного класса.
+
+![Примеры интерактивной классификации отзывов](screens/reviews.png)
+
+---
+
+## 🖥 Использование
+
+### Установка
 
 ```bash
-.
-├── reviews.ipynb          
-├── Amazon_Reviews.csv
-└── README.md              
+git clone https://github.com/golovanov-andrei/Reviews.git
+cd Reviews
+python -m venv .venv
 ```
 
----
+Активируйте окружение:
 
-## ⚙️ Установка и запуск
+```powershell
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+```
 
-### 1. Клонирование репозитория
 ```bash
-git clone https://github.com
-cd reviews-classification
+# macOS / Linux
+source .venv/bin/activate
 ```
 
-### 2. Установка зависимостей
-Рекомендуется использовать виртуальное окружение:
+Установите библиотеки и английские стоп-слова NLTK:
+
 ```bash
-pip install pandas numpy scikit-learn matplotlib seaborn nltk
+python -m pip install notebook pandas numpy scikit-learn matplotlib seaborn nltk pyLDAvis
+python -c "import nltk; nltk.download('stopwords')"
 ```
 
-### 3. Запуск
+### Запуск ноутбука
+
 ```bash
 jupyter notebook reviews.ipynb
 ```
 
+В ячейке загрузки замените путь Kaggle на локальный файл из репозитория:
+
+```python
+df = pd.read_csv("Amazon_Reviews.csv", engine="python")
+```
+
+Выполните ячейки по порядку. В последней ячейке вводите отзывы на английском языке; команда **`exit`** завершает ввод.
+
+При выполнении создаются:
+
+| Файл | Содержимое |
+| --- | --- |
+| `clean_reviews.csv` | Очищенные данные с метками тональности |
+| `lda_vis.html` | Интерактивная визуализация тем для просмотра в браузере |
+
+Для анализа своего отзыва сначала выполните ячейки обучения: модель и векторизатор хранятся в памяти текущего ядра Jupyter.
+
 ---
 
-## 📊 Pipeline работы
-1. **Загрузка данных:** Импорт датасета с отзывами.
-2. **EDA:** Анализ распределения классов.
-3. **Preprocessing:** Очистка текста и нормализация.
-4. **Vectorization:** Применение TF-IDF трансформации.
-5. **Modeling:** Обучение классификатора (например, Logistic Regression или Random Forest).
-6. **Evaluation:** Валидация на тестовой выборке.
+## 📂 Структура проекта
+
+```text
+Reviews/
+├── reviews.ipynb       # Анализ, обучение, оценка и интерактивный ввод
+├── Amazon_Reviews.csv # Исходные данные
+├── screens/           # Примеры работы и графики для README
+└── README.md          # Описание проекта и запуск
+```
 
 ---
 
 ## 👤 Автор
 
-**Андрей Голованов**  
-[![GitHub](https://img.shields.io/badge/GitHub-golovanov--andrei-black?logo=github)](https://github.com/golovanov-andrei)
+**Андрей Голованов**
+[GitHub](https://github.com/golovanov-andrei) · [Telegram](https://t.me/andr3ikaG)
